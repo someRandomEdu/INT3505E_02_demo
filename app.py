@@ -58,14 +58,20 @@ class BookDeletion(Schema):
     success = Boolean(required=True)
 
 
+class LandingPage(Schema):
+    message = String(required=True)
+
+
 with app.app_context():
     db.create_all()
 
 
 @app.route('/', methods=['GET'])
+@app.input(EmptySchema)
+@app.output(schema=LandingPage)
 def index():
     """Landing page."""
-    return "Hello World!"
+    return { "message": "Hello World!" }
 
 
 @app.route('/books/<id>', methods=['GET'])
@@ -98,6 +104,7 @@ def get_all_books():
 
 
 @app.route('/books', methods=['POST'])
+@app.input(schema=BookIn, location='body')
 @app.output(schema=BookOut)
 def create_book():
     """Add a new book to the database."""
@@ -109,6 +116,7 @@ def create_book():
 
 
 @app.route('/books', methods=['PUT'])
+@app.input(schema=BookIn, location='body')
 @app.output(schema=BookOut)
 def mutate_book():
     """Modify an existing book in the database."""
@@ -122,6 +130,7 @@ def mutate_book():
 
 
 @app.route('/books/<id>', methods=['DELETE'])
+@app.input(schema=BookId)
 @app.output(schema=BookDeletion)
 def delete_book(id: int):
     """Delete an existing book from the database by its id."""
